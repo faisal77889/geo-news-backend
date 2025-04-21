@@ -6,10 +6,12 @@ const UserSchema = new mongoose.Schema(
     firstName: {
       type: String,
       required: true,
+      trim : true,
     },
     lastName: {
       type: String,
       required: true,
+      trim : true,
     },
     age: {
       type: Number,
@@ -51,6 +53,7 @@ const UserSchema = new mongoose.Schema(
     pressId: {
       type: String,
       unique: true,
+      sparse : true,
       validate: {
         validator: function (value) {
           if (this.role === "reporter" && !value) {

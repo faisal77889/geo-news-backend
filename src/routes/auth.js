@@ -32,5 +32,16 @@ authRouter.post("/signup", async (req, res) => {
       res.status(400).json({ error: error.message });
     }
   });
+
+
+  authRouter.post("/login", async(req,res) =>{
+    try {
+        const user = req.body;
+        
+        
+    } catch (error) {
+        res.status(400).json({error : error.message});
+    }
+  })
   
   module.exports = authRouter;
