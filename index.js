@@ -1,13 +1,24 @@
 const express = require("express");
 const app = express();
+const connectDB = require("./src/config/database")
 
 
-app.get("/test",(req,res)=>{
-    res.send("Hello world");
+const authRouter = require("./src/routes/auth");
+
+
+app.use(express.json());
+
+
+app.use("/",authRouter);
+
+
+connectDB()
+.then(()=>{
+    console.log("connected to the database succesfully");
+    app.listen('5000',(req,res)=>{
+        console.log("listening on port 5000...")
+    })
 })
-
-
-
-app.listen("5000",()=>{
-    console.log("server is listening on port 5000...")
+.catch((err)=>{
+    console.log("something error is there " + err.message);
 })
