@@ -1,15 +1,19 @@
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const connectDB = require("./src/config/database")
 
 
 const authRouter = require("./src/routes/auth");
+const newsRouter = require("./src/routes/newsRouter")
 
 
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.use("/",authRouter);
+app.use("/",newsRouter);
 
 
 connectDB()
