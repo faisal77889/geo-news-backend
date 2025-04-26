@@ -82,5 +82,38 @@ newsRouter.patch("/news/update/:id", reporterAuth, async (req, res) => {
 });
 
 
+newsRouter.delete("/news/delete/:id", reporterAuth, async (req, res) => {
+    try {
+        const newsId = req.params.id;
+        const reporterId = req.reporter._id;
+        
+        const newsInDB = await News.findById(newsId);
+
+        if (!newsInDB) {
+            return res.status(404).json({
+                message: "News not found in the database."
+            });
+        }
+        if (newsInDB.reporter.toString() !== reporterId.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to delete this news."
+            });
+        }
+        await News.findByIdAndDelete(newsId);
+
+        res.status(200).json({
+            message: "News deleted successfully."
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong while deleting the news.",
+            error: error.message
+        });
+    }
+});
+
+
+
 
 module.exports = newsRouter;
