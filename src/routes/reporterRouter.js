@@ -1,10 +1,10 @@
 const express = require("express");
-const newsRouter = express.Router();
+const reporterRouter = express.Router();
 const reporterAuth = require("../middleware/reporterAuth");
 const validateNewsData = require("../utils/validateNewsData");
 const News = require("../models/news");
 
-newsRouter.post("/news/post", reporterAuth, async (req, res) => {
+reporterRouter.post("/news/post", reporterAuth, async (req, res) => {
     try {
         const validatedNews = validateNewsData(req.body);
         const { title, category, description, image, location } = validatedNews;
@@ -31,7 +31,7 @@ newsRouter.post("/news/post", reporterAuth, async (req, res) => {
     }
 });
 
-newsRouter.get("/news/my-news", reporterAuth, async (req, res) => {
+reporterRouter.get("/news/my-news", reporterAuth, async (req, res) => {
     try {
         const reporterId = req.reporter._id;
         const newsList = await News.find({ reporter: reporterId }).sort({ createdAt: -1 });
@@ -48,7 +48,7 @@ newsRouter.get("/news/my-news", reporterAuth, async (req, res) => {
     }
 });
 
-newsRouter.patch("/news/update/:id", reporterAuth, async (req, res) => {
+reporterRouter.patch("/news/update/:id", reporterAuth, async (req, res) => {
     try {
         const reporterId = req.reporter._id;
         const newsData = req.body;
@@ -82,7 +82,7 @@ newsRouter.patch("/news/update/:id", reporterAuth, async (req, res) => {
 });
 
 
-newsRouter.delete("/news/delete/:id", reporterAuth, async (req, res) => {
+reporterRouter.delete("/news/delete/:id", reporterAuth, async (req, res) => {
     try {
         const newsId = req.params.id;
         const reporterId = req.reporter._id;
@@ -116,4 +116,4 @@ newsRouter.delete("/news/delete/:id", reporterAuth, async (req, res) => {
 
 
 
-module.exports = newsRouter;
+module.exports = reporterRouter;
