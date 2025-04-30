@@ -89,6 +89,93 @@ userRouter.get("/news/category/:type", async (req, res) => {
 });
 
 
+userRouter.get("/news/nearby", reporterAuth, async (req, res) => {
+    try {
+        const longitude = parseFloat(req.query.long);
+        const latitude = parseFloat(req.query.lat);
+        let radiusInKm = parseFloat(req.query.radius) || 50;
+
+        if (!longitude || !latitude) {
+            throw new Error("Longitude and Latitude must be provided.");
+        }
+
+        if (isNaN(longitude) || isNaN(latitude)) {
+            throw new Error("Longitude and Latitude must be numbers.");
+        }
+
+        if (longitude < -180 || longitude > 180) {
+            throw new Error("Longitude must be between -180 and 180 degrees.");
+        }
+
+        if (latitude < -90 || latitude > 90) {
+            throw new Error("Latitude must be between -90 and 90 degrees.");
+        }
+
+        if (radiusInKm > 1000) radiusInKm = 1000;
+        if (radiusInKm < 10) radiusInKm = 10;
+
+        const news = await News.find({
+            location: {
+                $nearSphere: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [longitude, latitude],
+                    },
+                    $maxDistance: radiusInKm * 1000,
+                }
+            }
+        })
+        .sort({ createdAt: -1 }) 
+        .limit(50) 
+        .lean(); 
+
+        if (news.length === 0) {
+            return res.status(200).json({
+                message: `There are no news present to your nearby location at the moment`,
+                data: []
+            });
+        }
+
+        res.status(200).json({
+            message: "Data sent successfully",
+            data: news
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong with /news/nearby route.",
+            error: error.message,
+        });
+    }
+});
+
+
+userRouter.get("/news/search",reporterAuth, async (req, res) => {
+    try {
+      const query = req.query.q;
+  
+      if (!query) {
+        return res.status(400).json({ error: "Search query is required." });
+      }
+  
+      const news = await News.find({
+        $or: [
+          { title: { $regex: query, $options: "i" } },
+          { description: { $elemMatch: { $regex: query, $options: "i" } } }
+        ]
+      });
+  
+      res.status(200).json({
+        message: "Search results fetched successfully",
+        data: news,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+
+
 
 
 module.exports = userRouter;
